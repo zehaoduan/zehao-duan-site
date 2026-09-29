@@ -7,4 +7,5 @@ export { BlogHead, type BlogHeadProps } from './blog-head';
 export { BlogPage, type BlogPageProps } from './blog-page';
 export { PostData, type PostDataProps } from './post-data';
 export { PostDates, type PostDatesProps } from './post-dates';
+export { PostNav, type PostNavProps } from './post-nav';
 export { PostPage, type PostPageProps } from './post-page';

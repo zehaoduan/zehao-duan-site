@@ -34,4 +34,9 @@ export const blog: BlogContent = {
   draft: 'Draft',
   feedLink: 'RSS feed',
   backLink: 'All posts',
+  postNav: {
+    label: 'Posts before and after',
+    previous: 'Previous post',
+    next: 'Next post',
+  },
 };

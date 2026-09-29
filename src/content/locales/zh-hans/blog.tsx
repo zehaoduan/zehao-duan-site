@@ -34,4 +34,9 @@ export const blog: BlogContent = {
   draft: '草稿',
   feedLink: 'RSS 订阅',
   backLink: '全部文章',
+  postNav: {
+    label: '上一篇和下一篇',
+    previous: '上一篇',
+    next: '下一篇',
+  },
 };

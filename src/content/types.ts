@@ -520,6 +520,15 @@ export interface BlogContent {
   feedLink: string;
   /** Text of the link from a post back to the list of posts. */
   backLink: string;
+  /** The links at the end of a post to the posts before and after it, by date. */
+  postNav: {
+    /** Accessible name of the navigation. */
+    label: string;
+    /** Above the title of the post published before this one. */
+    previous: string;
+    /** Above the title of the post published after this one. */
+    next: string;
+  };
 }
 
 /* Not-found page ---------------------------------------------------------- */
@@ -556,6 +565,9 @@ export interface PostImage {
   srcSet?: string;
 }
 
+/** A square preview of a picture of a post. */
+export type PostPreview = Omit<PostImage, 'srcSet'>;
+
 /** What is the same in every language: post.json of the post. */
 export interface PostFacts {
   /** Name of the folder of the post, and the last part of its address. */
@@ -575,9 +587,22 @@ export interface PostSummary extends PostFacts {
   description: string;
   /** Alt text of the cover picture; present when the post has a cover. */
   coverAlt?: string;
+  /**
+   * Square previews of the pictures of the post for the list of posts: the
+   * cover first, then the pictures of the text in their order. Absent when
+   * the post has no picture.
+   */
+  previews?: readonly PostPreview[];
 }
+
+/** What a link to a post needs. */
+export type PostLink = Pick<PostSummary, 'slug' | 'title'>;
 
 /** A post in one language. `html` is the text, rendered from Markdown at build time. */
 export interface Post extends PostSummary {
   html: string;
+  /** The post published before this one, if there is one. */
+  previous?: PostLink;
+  /** The post published after this one, if there is one. */
+  next?: PostLink;
 }

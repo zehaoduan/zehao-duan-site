@@ -23,7 +23,7 @@ The old static site lives in `~/Documents/Website/personal-website`. It stays th
 | `/blog/`, `/zh-hant/blog/`, `/zh-hans/blog/` | The list of blog posts |
 | `/blog/<slug>/` and the same below `/zh-hant`, `/zh-hans` | A blog post |
 | `/blog/feed.xml` and the same below `/zh-hant`, `/zh-hans` | RSS feed of the blog, one per language |
-| `/media/blog/<slug>/*.webp` | The pictures of the posts |
+| `/media/blog/<slug>/*.webp` | The pictures of the posts, and their square previews for the list of posts |
 | `/media/photo/*` | The portrait: AVIF and WebP in three widths, one JPEG |
 | `/public-key/pgp.asc`, `/public-key/ssh.pub` | The raw key files, `text/plain` |
 | `/sitemap.xml`, `/robots.txt` | For search engines |
@@ -39,7 +39,7 @@ The full description is in [docs/architecture.md](docs/architecture.md); the des
 2. **Route tree.** `src/app/[lang]/page.tsx` is the home page, `src/app/[lang]/public-key/page.tsx` the public-key page, and `src/app/[lang]/blog/` the blog (list, post, feed), for all three languages. The key files, the sitemap and robots.txt are small route files under `src/app/`. `src/app/global-not-found.tsx` is the 404 page.
 3. **Per-request rendering.** No page is prerendered or cached. That is what allows a strict Content-Security-Policy with a new nonce on every response.
 4. **Content modules.** All text is in `src/content/`: one folder per language under `locales/`, facts that are the same in every language in `site.ts` and `keys/facts.ts`. Components receive their text as properties and contain no wording.
-5. **Components.** `src/components/ui/` holds the shadcn/ui components, `site/` the frame shared by all pages (header, footer, language links, theme switch), `home/` and `keys/` the parts of the two pages, `icons/` the brand marks.
+5. **Components.** `src/components/ui/` holds the shadcn/ui components, `site/` the frame shared by all pages (header, footer, language links, theme switch), `home/`, `keys/` and `blog/` the parts of the pages, `icons/` the brand marks, `content/` the helpers for text inside the dictionaries.
 6. **Design tokens.** Colours, fonts, radii and shadows are CSS variables in `src/app/globals.css`, light and dark.
 
 ## Folder map
@@ -155,10 +155,10 @@ A post is a folder in `src/content/blog/`. The folder `writing-a-post` is an exa
 
    | Entry | Meaning |
    | --- | --- |
-   | `date` | Date of publication. Posts are listed newest first. |
+   | `date` | Date of publication. Posts are listed newest first, and the links "Previous post" and "Next post" at the end of a post follow the same order. |
    | `updated` | Optional. Date of the last change, shown beside the date. |
    | `draft` | `true`: the post is seen under `npm run dev` only. |
-   | `cover` | Optional. File name of the picture at the top of the post, also used when the post is shared. |
+   | `cover` | Optional. File name of the picture at the top of the post, also used when the post is shared, and the first preview in the list of posts. |
 
 3. Write the text in `en.md`, `zh-hant.md` and `zh-hans.md`. Each file starts with the front matter, then the text in Markdown:
 
@@ -166,7 +166,7 @@ A post is a folder in `src/content/blog/`. The folder `writing-a-post` is an exa
    ---
    title: The title of the post
    description: One or two sentences, shown in the list of posts and in search results.
-   coverAlt: What the cover picture shows (only if the post has a cover).
+   coverAlt: What the cover picture shows, also shown below it as its caption (only if the post has a cover).
    ---
 
    The first paragraph.
@@ -176,8 +176,10 @@ A post is a folder in `src/content/blog/`. The folder `writing-a-post` is an exa
    ![What the picture shows](figure-1.png "The caption of the picture")
    ```
 
-4. Put the pictures into the folder of the post (JPEG, PNG, WebP, AVIF, GIF or TIFF). The build writes each as WebP, at most 1600 pixels wide, to `public/media/blog/<slug>/`; the original file stays as it is.
+4. Put the pictures into the folder of the post (JPEG, PNG, WebP, AVIF, GIF or TIFF). The build writes each as WebP, at most 1600 pixels wide, to `public/media/blog/<slug>/`, and a small square preview of each for the list of posts (the cover first, then the pictures of the text); the original file stays as it is.
 5. Look at the post with `npm run dev`. The page follows the files as they are saved.
+
+   A change to `scripts/generate-blog.mjs` itself is not followed; start `npm run dev` again, or run `node scripts/generate-blog.mjs --drafts`.
 6. To publish, set `"draft": false` and deploy (see below).
 
 Rules the build checks, and stops at with a message:
@@ -186,6 +188,12 @@ Rules the build checks, and stops at with a message:
 - every picture exists, lies in the folder of the post, and has a description in the square brackets;
 - headings in the text start at `##` (the title of the post is the only first-level heading);
 - pictures from other sites are not allowed, and HTML written inside a Markdown file is dropped. Both follow from the Content-Security-Policy.
+
+What the site adds to a post by itself:
+
+- in the list of posts, a row of square previews of its pictures under the description: at most six, four on a phone;
+- below the cover, the text of `coverAlt` as its caption, in the look of the captions in the text;
+- at the end of the post, links to the post published before it and the one published after it. Under `npm run dev` these lead to drafts as well; the live site has no drafts.
 
 Links to pages of this site are written with the path of the language of the file: `/public-key/` in `en.md`, `/zh-hans/public-key/` in `zh-hans.md`.
 

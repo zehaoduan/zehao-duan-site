@@ -2,7 +2,8 @@
  * The blog posts, as the pages read them.
  *
  *   getPosts(locale)        the posts of a language, newest first, without text
- *   getPost(locale, slug)   one post with its text, or undefined
+ *   getPost(locale, slug)   one post with its text and the links to the posts
+ *                           before and after it, or undefined
  *
  * The posts are Markdown files in src/content/blog/<slug>/. At build time
  * scripts/generate-blog.mjs turns them into the modules of blog-generated/,
@@ -30,7 +31,16 @@ export async function getPost(locale: Locale, slug: string): Promise<Post | unde
   const texts = textLoaders[locale];
   // hasOwn: a slug from a URL must not find 'constructor' and the like
   if (!Object.hasOwn(texts, slug)) return undefined;
-  const summary = (await getPosts(locale)).find((post) => post.slug === slug);
-  if (summary === undefined) return undefined;
-  return { ...summary, html: await texts[slug]() };
+  const posts = await getPosts(locale);
+  const index = posts.findIndex((post) => post.slug === slug);
+  if (index === -1) return undefined;
+  // the list is newest first: the post before this one in time stands after it
+  const previous = posts[index + 1];
+  const next = posts[index - 1];
+  return {
+    ...posts[index],
+    html: await texts[slug](),
+    ...(previous ? { previous: { slug: previous.slug, title: previous.title } } : {}),
+    ...(next ? { next: { slug: next.slug, title: next.title } } : {}),
+  };
 }

@@ -3,7 +3,12 @@
  * dictionary. The route file renders it inside SiteFrame.
  *
  *   head band   breadcrumb, title, lede, link to the feed
- *   list        one entry per post: dateline, title (the link), description
+ *   list        one entry per post: dateline, title (the link), description,
+ *               and a row of small previews of its pictures
+ *
+ * The row of previews shows at most four pictures below 640 px and six from
+ * there. It is a second link to the post, for the pointer only: the title is
+ * the link that keyboards and screen readers meet.
  *
  * Props
  *   locale      language of the page
@@ -31,6 +36,9 @@ export interface BlogPageProps {
 }
 
 const titleId = 'blog-title';
+
+/** Previews in a row from 640 px; below, the first four are shown. */
+const previewCount = 6;
 
 export function BlogPage({ locale, dictionary, posts }: BlogPageProps) {
   const { blog } = dictionary;
@@ -83,6 +91,34 @@ export function BlogPage({ locale, dictionary, posts }: BlogPageProps) {
                   <p className="mt-1.5 text-[0.9375rem] leading-[1.6] text-pretty text-muted-foreground lang-zh:leading-[1.8]">
                     {post.description}
                   </p>
+                  {post.previews ? (
+                    <a
+                      data-slot="post-previews"
+                      href={postPath(locale, post.slug)}
+                      tabIndex={-1}
+                      aria-hidden="true"
+                      className="group mt-3.5 grid grid-cols-4 gap-2 sm:grid-cols-6 print:hidden"
+                    >
+                      {post.previews.slice(0, previewCount).map((preview) => (
+                        // eslint-disable-next-line @next/next/no-img-element -- next/image renders a style attribute (CSP)
+                        <img
+                          key={preview.src}
+                          src={preview.src}
+                          alt=""
+                          width={preview.width}
+                          height={preview.height}
+                          loading="lazy"
+                          decoding="async"
+                          className={cn(
+                            'aspect-square h-auto w-full rounded-md bg-muted object-cover',
+                            'ring-1 ring-foreground/12 dark:brightness-[0.92]',
+                            'transition-opacity duration-[120ms] group-hover:opacity-90',
+                            'max-sm:nth-[n+5]:hidden',
+                          )}
+                        />
+                      ))}
+                    </a>
+                  ) : null}
                 </article>
               </li>
             ))}

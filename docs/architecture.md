@@ -128,7 +128,7 @@ src/content/blog/<slug>/      post.json, en.md, zh-hant.md, zh-hans.md, pictures
         │  scripts/generate-blog.mjs   (before `dev` and `build`)
         ▼
 src/content/blog-generated/   facts.ts, loaders.ts, <language>/index.ts, <language>/<slug>.ts
-public/media/blog/<slug>/     the pictures as WebP, 800 and 1600 px wide
+public/media/blog/<slug>/     the pictures as WebP, 800 and 1600 px wide, and square previews (240 px)
         │
         ▼
 src/content/blog.ts           getPosts(locale), getPost(locale, slug)
@@ -140,6 +140,8 @@ src/content/blog.ts           getPosts(locale), getPost(locale, slug)
 - Pictures carry a hash of their content in the file name and are cached for a year (`public/_headers`). A changed picture gets a new name.
 - The rendered HTML holds no `style` attribute and no script: HTML inside the Markdown is dropped, and the generator stops if a `style` attribute would appear. The look of the text is in `globals.css` under `[data-slot="post-body"]`.
 - Drafts (`"draft": true`) are generated only with `--drafts` or `BLOG_DRAFTS=1`. `npm run dev` sets the flag; `build`, `preview` and `deploy` do not. A draft that is shown carries `noindex`, and is in neither the sitemap nor the feed.
+- The list of posts shows under each post a row of square previews of its pictures, the cover first (`previews` of a post, written by the generator).
+- A post ends with links to the posts before and after it by date (`PostNav`); `getPost` reads them from the list of the language.
 - The pages call `getPosts` and `getPost` only. If the posts move into a database, `src/content/blog.ts` is the one module to change.
 
 ### Interface strings that do not exist yet
@@ -167,7 +169,7 @@ src/components/
   home/      ... and CopyRow (the rows of the contact block that copy their value)
   keys/      KeysPage, PageHead, KeySection, KeyCard, Fingerprint, KeyText,
              UsageSteps, Command, TrustNotes, BackLink, CopyButton
-  blog/      BlogPage, PostPage, BlogHead, PostDates, PostData
+  blog/      BlogPage, PostPage, BlogHead, PostDates, PostNav, PostData
   icons/     brand marks: ORCID, Google Scholar, GitHub, LinkedIn, WeChat
   content/   inline helpers used inside the dictionaries
 ```

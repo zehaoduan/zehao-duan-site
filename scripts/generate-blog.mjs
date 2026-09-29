@@ -12,7 +12,9 @@
  *                                            <language>/index.ts (the list),
  *                                            <language>/<slug>.ts (the text)
  *   written to public/media/blog/<slug>/     the pictures as WebP, at most
- *                                            1600 px wide, and 800 px wide
+ *                                            1600 px wide, and 800 px wide;
+ *                                            and of each a square preview
+ *                                            for the list of posts
  *
  * Runs before `next dev` and `next build` (see package.json). Markdown is
  * rendered here, at build time, so no Markdown parser reaches the Worker.
@@ -68,6 +70,8 @@ const locales = ['en', 'zh-hant', 'zh-hans'];
 const widths = [800, 1600];
 const maxWidth = widths[widths.length - 1];
 const webpQuality = 82;
+/** Side of the square previews in the list of posts; they are shown at about 100 px. */
+const previewSide = 240;
 /** Width of the text column (41rem) for the sizes attribute. */
 const sizes = '(min-width: 44rem) 41rem, 100vw';
 
@@ -229,6 +233,41 @@ async function picture(slug, reference, from) {
   return made;
 }
 
+/** Square previews of this run by source file. */
+let previews = new Map();
+
+/** The square preview of a picture that picture() has taken already. */
+function preview(slug, reference) {
+  const source = resolve(join(blogDir, slug), decodeURIComponent(reference));
+  const known = previews.get(source);
+  if (known) return known;
+
+  const made = (async () => {
+    const bytes = readFileSync(source);
+    const hash = createHash('sha256').update(bytes).digest('hex').slice(0, 8);
+    const name = basename(source, extname(source))
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+    const fileName = `${name || 'picture'}-${hash}-preview.webp`;
+    const file = join(mediaDir, slug, fileName);
+    wanted.add(file);
+    if (!existsSync(file)) {
+      mkdirSync(dirname(file), { recursive: true });
+      await sharp(bytes)
+        .rotate()
+        // attention: the square is cut around the part of the picture that draws the eye
+        .resize({ width: previewSide, height: previewSide, fit: 'cover', position: 'attention' })
+        .webp({ quality: webpQuality })
+        .toFile(file);
+      log(`wrote ${show(file)}`);
+    }
+    return { source, src: `${mediaPath}/${slug}/${fileName}`, width: previewSide, height: previewSide };
+  })();
+  previews.set(source, made);
+  return made;
+}
+
 /* Markdown to HTML ---------------------------------------------------------- */
 
 const element = (tagName, properties, children) => ({
@@ -241,7 +280,7 @@ const element = (tagName, properties, children) => ({
 const isBlank = (node) => node.type === 'text' && node.value.trim() === '';
 
 /** The changes to the HTML tree of a post; see the head of this file. */
-function postTree({ slug, file }) {
+function postTree({ slug, file, found }) {
   return async function transform(tree) {
     const images = [];
 
@@ -292,6 +331,7 @@ function postTree({ slug, file }) {
         fail(`${show(file)}: the picture ${src} needs a description: ![description](${src})`);
       }
       const made = await picture(slug, src, file);
+      found.push(src);
       image.properties = {
         src: made.src,
         ...(made.srcSet ? { srcSet: made.srcSet, sizes } : {}),
@@ -306,16 +346,18 @@ function postTree({ slug, file }) {
   };
 }
 
+/** The HTML of a text, and the pictures in it in their order. */
 async function render(slug, text) {
+  const found = [];
   const html = await unified()
     .use(remarkParse)
     .use(remarkGfm)
     // HTML written inside the Markdown is dropped: it could carry styles and scripts
     .use(remarkRehype)
-    .use(postTree, { slug, file: text.file })
+    .use(postTree, { slug, file: text.file, found })
     .use(rehypeStringify)
     .process(text.markdown);
-  return String(html).trim();
+  return { html: String(html).trim(), pictures: found };
 }
 
 /* Writing ------------------------------------------------------------------- */
@@ -360,6 +402,7 @@ function sweep(folder, keep) {
 async function generate() {
   wanted = new Set();
   pictures = new Map();
+  previews = new Map();
   written = new Set();
 
   const slugs = existsSync(blogDir)
@@ -385,7 +428,14 @@ async function generate() {
     const texts = {};
     for (const locale of locales) {
       const text = readText(slug, locale, cover !== undefined);
-      texts[locale] = { ...text, html: await render(slug, text) };
+      const { html, pictures: inText } = await render(slug, text);
+      // the cover first, then the pictures of the text; a picture used twice is shown once
+      const shown = new Map();
+      for (const reference of [...(facts.cover ? [facts.cover] : []), ...inText]) {
+        const { source, ...made } = await preview(slug, reference);
+        shown.set(source, made);
+      }
+      texts[locale] = { ...text, html, previews: [...shown.values()] };
     }
     posts.push({
       facts: {
@@ -427,6 +477,9 @@ export const posts: readonly PostSummary[] = ${literal(
           title: post.texts[locale].title,
           description: post.texts[locale].description,
           ...(post.texts[locale].coverAlt ? { coverAlt: post.texts[locale].coverAlt } : {}),
+          ...(post.texts[locale].previews.length > 0
+            ? { previews: post.texts[locale].previews }
+            : {}),
         })),
       )};
 `,
