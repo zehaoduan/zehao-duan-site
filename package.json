@@ -5,7 +5,9 @@
   "scripts": {
     "generate": "node scripts/generate-key-text.mjs && node scripts/generate-photo.mjs && node scripts/generate-blog.mjs",
     "generate:dev": "node scripts/generate-key-text.mjs && node scripts/generate-photo.mjs && node scripts/generate-blog.mjs --drafts",
-    "predev": "npm run generate:dev",
+    "pictures": "node scripts/prepare-pictures.mjs",
+    "pictures:check": "node scripts/prepare-pictures.mjs --check",
+    "predev":"npm run generate:dev",
     "dev": "node scripts/dev.mjs",
     "prebuild": "npm run generate",
     "build": "next build",

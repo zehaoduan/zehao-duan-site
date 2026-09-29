@@ -8,4 +8,4 @@ coverAlt: A group photo of (some of) our research team at the Department of Elec
 
 ![Before dinner, our whole research team went to karaoke together.](figure-2.jpeg "Before dinner, our whole research team went to karaoke together.")
 
-Today our whole research team went out for dinner together. [Professor Yue Zhu](https://www.cityu.edu.hk/stfprofile/yue.zhu.htm) treated all of us to dinner, and before dinner he also took us to karaoke.
+Today our whole research team went out for dinner together. [Professor Yue Zhu](https://yuezhu.site) treated all of us to dinner, and before dinner he also took us to karaoke.

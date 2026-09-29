@@ -16,4 +16,8 @@ coverAlt: My parents drove me to the airport for my trip to Hong Kong.
 
 ![Finding my desk.](figure-6.jpeg "Finding my desk.")
 
-Today is my first day at City University of Hong Kong. I am very happy. I am grateful to City University of Hong Kong for its funding and to [Professor Yue Zhu](https://www.cityu.edu.hk/stfprofile/yue.zhu.htm) for his support.
+![Arriving at where I live: I rent a room on the 51st floor of the first building in the photo.](figure-7.jpeg "Arriving at where I live: I rent a room on the 51st floor of the first building in the photo.")
+
+![My room.](figure-8.jpeg "My room.")
+
+Today is my first day at City University of Hong Kong. I am very happy. I am grateful to City University of Hong Kong for its funding and to [Professor Yue Zhu](https://yuezhu.site) for his support.

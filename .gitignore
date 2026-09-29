@@ -37,6 +37,19 @@ id_ed25519*
 *.zip
 *.tar.gz
 
+# files of the camera that the site cannot use; they hold the place (GPS).
+# Export a JPEG and run `npm run pictures` instead.
+*.heic
+*.HEIC
+*.heif
+*.dng
+*.DNG
+*.mov
+*.MOV
+
+# resource forks that macOS writes on disks of other systems
+._*
+
 # editors
 .idea/
 .vscode/*

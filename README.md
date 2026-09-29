@@ -53,6 +53,7 @@ scripts/
   generate-key-text.mjs   turns the key files into a module; checks the fingerprints
   generate-photo.mjs      turns the portrait (src/content/photo/) into web pictures
   generate-blog.mjs       turns the blog posts into modules and web pictures
+  prepare-pictures.mjs    removes the data inside the original pictures and makes them smaller
   dev.mjs                 `npm run dev`: the development server and the blog generator, watching
   checks/runtime.py       checks a running preview (status codes, headers, key files)
   checks/parity.py        compares the rendered pages with the old static pages
@@ -178,7 +179,7 @@ A post is a folder in `src/content/blog/`. The folder `writing-a-post` is an exa
    ![What the picture shows](figure-1.png "The caption of the picture")
    ```
 
-4. Put the pictures into the folder of the post (JPEG, PNG, WebP, AVIF, GIF or TIFF). The build writes each as WebP, at most 1600 pixels wide, to `public/media/blog/<slug>/`, and a small square preview of each for the list of posts (the cover first, then the pictures of the text); the original file stays as it is.
+4. Put the pictures into the folder of the post (JPEG, PNG, WebP, AVIF, GIF or TIFF), then run `npm run pictures`, which removes the camera data and the place from each new original and makes it 2400 pixels wide at most (see Pictures and the public repository). The build writes each picture as WebP, at most 1600 pixels wide, to `public/media/blog/<slug>/`, and a small square preview of each for the list of posts (the cover first, then the pictures of the text); the build does not change the original.
 5. Look at the post with `npm run dev`. The page follows the files as they are saved.
 
    A change to `scripts/generate-blog.mjs` itself is not followed; start `npm run dev` again, or run `node scripts/generate-blog.mjs --drafts`.
@@ -202,6 +203,27 @@ Links to pages of this site are written with the path of the language of the fil
 
 A published post appears on the home page by itself. Publishing a post does not change the last-updated date of the site; that date is set by hand (next section).
 
+### People, names and links in a post
+
+- Every person named in the text of a post carries a link, in all three languages. The link leads to the personal website of the person if there is one, otherwise to the profile page of the university.
+- Titles, descriptions, `coverAlt` and captions are plain text and carry no link.
+- English pages write "Professor Yue Zhu" in full, never "Professor Zhu Yue" and never the family name alone.
+- English pages name the laboratory "JC STEM Lab of Future Energy Systems", as its sign does.
+- Chinese pages write the Chinese name of a person where it is known; English pages keep the English name.
+
+  | English pages | `zh-hans.md` | `zh-hant.md` |
+  | --- | --- | --- |
+  | Professor Z. Y. Dong | 董朝阳教授 | 董朝陽教授 |
+  | Professor Leanne Chan | 陈俪行教授 | 陳儷行教授 |
+- A photo of a group says in its caption which person is the author, by place and clothing.
+
+| Person | Link |
+| --- | --- |
+| Professor Yue Zhu | <https://yuezhu.site> |
+| Professor Z. Y. Dong | <https://www.cityu.edu.hk/stfprofile/zydong.htm> |
+| Professor Leanne Chan | <https://www.cityu.edu.hk/stfprofile/lhlchan.htm> |
+| Professor Tim Green | <https://profiles.imperial.ac.uk/t.green> |
+
 To see drafts on the local Workers runtime, which applies the strict Content-Security-Policy:
 
 ```bash
@@ -222,13 +244,27 @@ Do not put the original into `public/`: everything in that folder is published a
 
 ## Pictures and the public repository
 
-The files that the site serves carry no camera data. The originals in `src/content/blog/` and `src/content/photo/` do, as the camera wrote them, and they are part of the repository. A photo from a phone usually holds the place (GPS) and the time it was taken. Remove that data from an original before it is committed, or anyone can read it on GitHub. This lists the originals that hold a place:
+The files that the site serves carry no camera data. The originals in `src/content/blog/` and `src/content/photo/` are part of the repository, and a photo from a phone holds the camera, the time and usually the place (GPS) where it was taken. Anyone could read that on GitHub. A photo from a phone is also several megabytes large, far more than the site needs.
+
+After a picture is added or replaced:
 
 ```bash
-node -e "const s=require('sharp'),fs=require('fs'),p=require('path');const w=d=>fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>e.isDirectory()?w(p.join(d,e.name)):[p.join(d,e.name)]);(async()=>{for(const f of [...w('src/content/blog'),...w('src/content/photo')].filter(f=>/\\.(jpe?g|png|webp|avif|tiff?)$/i.test(f))){const m=await s(f).metadata();if(m.exif&&(m.exif.includes(Buffer.from([0x88,0x25]))||m.exif.includes(Buffer.from([0x25,0x88]))))console.log(f)}})()"
+npm run pictures
 ```
 
-It must print nothing before the repository is pushed.
+`scripts/prepare-pictures.mjs` rewrites each original that needs it, in place: it turns the picture upright, removes all data inside the file (EXIF, GPS, XMP, IPTC, colour profile) and makes the picture 2400 pixels wide if it is wider. An original that is ready is not touched. The old file is lost, so keep a copy outside the project if it is wanted.
+
+Before the repository is pushed or the site is deployed:
+
+```bash
+npm run pictures:check
+```
+
+It changes nothing, lists the originals that still need the step, and must end with "every original is ready".
+
+Files of the camera that the site cannot use (HEIC, DNG, the video of a Live Photo) are ignored by git, so that they do not reach the repository by accident.
+
+On 2026-09-30 all 30 originals were ready; together they take 22 MB.
 
 ## The last-updated date
 
@@ -351,7 +387,7 @@ Since the portrait was changed on 2026-09-29, `parity.py` reports the address an
 
 `parity.py` compares each rendered page with the old static page in `~/Documents/Website/personal-website` (set `OLD_SITE` to use another folder): every piece of text of the old page must be on the new page, the key text must equal the key files, the `email_off` comments must be in place, head tags and JSON-LD must be equal, and the content rules (no +86 number, no key data on home pages, WeChat on the Simplified Chinese home page only) must hold. `python3 scripts/checks/parity.py --negative-control` damages the fetched pages on purpose and proves that the script can fail. Once the old site is retired and the text moves on, this comparison loses its reference; the content rules and the key checks in it remain useful.
 
-Then the two searches under "Only public keys go in this folder", the search under "Pictures and the public repository", and a look at the pages in a browser: light and dark, a phone width, the copy buttons, and the browser console, which must show no Content-Security-Policy message.
+Then the two searches under "Only public keys go in this folder", `npm run pictures:check` (see Pictures and the public repository), and a look at the pages in a browser: light and dark, a phone width, the copy buttons, and the browser console, which must show no Content-Security-Policy message.
 
 Size of the Worker:
 
@@ -359,7 +395,7 @@ Size of the Worker:
 npm run cf:size
 ```
 
-On 2026-09-29 it reported a total upload of 9702.68 KiB, 2351.92 KiB after gzip. The limit of the Workers Free plan is 3 MiB (3072 KiB) after gzip.
+On 2026-09-30 it reported a total upload of 9643.37 KiB, 2323.58 KiB after gzip. The limit of the Workers Free plan is 3 MiB (3072 KiB) after gzip.
 
 ## Deploying to Cloudflare Workers
 
