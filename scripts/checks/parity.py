@@ -178,7 +178,7 @@ def check_page(name, kind, locale, new, old, problems, notes):
     if kind != '404':
         dates = re.findall(r'<time\b[^>]*\bdatetime="([^"]+)"[^>]*>([^<]*)</time>', new, re.I)
         old_dates = re.findall(r'<time\b[^>]*\bdatetime="([^"]+)"[^>]*>([^<]*)</time>', old, re.I)
-        if ('2026-09-28' not in [d[0] for d in dates]): bad('last-updated date 2026-09-28 not found')
+        if ('2026-09-29' not in [d[0] for d in dates]): bad('last-updated date 2026-09-29 not found')
         if set(dates) != set(old_dates): bad('time elements differ: %r / %r' % (sorted(set(old_dates)), sorted(set(dates))))
     return extra, len(o_nodes), len(n_nodes)
 

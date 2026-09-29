@@ -42,6 +42,19 @@ The owner chose 主頁 for Traditional Chinese, so "back to home" reads 返回�
 (it was 返回首頁), in the app and in the old static pages. Simplified Chinese keeps
 首页 and 返回首页.
 
+The last-updated date of the app was set to 2026-09-29 (owner's decision, the same day),
+after the blog section was added to the home page. The old static pages keep 2026-09-28,
+so a comparison now finds this one difference in dates.
+
+The blog section of the home page (2026-09-29) has two visible labels. Both repeat wording
+that the blog already uses: the heading is the name of the blog in the header, the link is
+the back link of a post.
+
+| Label | Field | English | 繁體 | 简体 |
+| --- | --- | --- | --- | --- |
+| Heading of the blog section | `home.blog.title` | Blog | 網誌 | 博客 |
+| Link to the list of all posts | `home.blog.allPosts` | All posts | 全部文章 | 全部文章 |
+
 Deliberately left without a label: the text of the SSH key (`keys.ssh.keyAriaLabel`). A
 label would make the line a keyboard stop, and the line wraps and never scrolls, so the
 stop would do nothing.

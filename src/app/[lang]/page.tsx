@@ -11,6 +11,7 @@ import { connection } from 'next/server';
 
 import { HomeBody } from '@/components/home';
 import { PageData, SiteFrame } from '@/components/site';
+import { getPosts } from '@/content/blog';
 import { getDictionary } from '@/content/get-dictionary';
 import { isLocale } from '@/i18n/config';
 import { buildMetadata } from '@/lib/metadata';
@@ -26,12 +27,12 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
   if (!isLocale(lang)) notFound();
   // Rendered on every request, never at build time.
   await connection();
-  const dictionary = await getDictionary(lang);
+  const [dictionary, posts] = await Promise.all([getDictionary(lang), getPosts(lang)]);
 
   return (
     <SiteFrame locale={lang} route="home" dictionary={dictionary}>
       <PageData locale={lang} route="home" dictionary={dictionary} />
-      <HomeBody locale={lang} dictionary={dictionary} />
+      <HomeBody locale={lang} dictionary={dictionary} posts={posts} />
     </SiteFrame>
   );
 }

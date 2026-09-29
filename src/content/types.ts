@@ -397,6 +397,12 @@ export interface HomeContent {
     keysLinkText: string;
   };
   biography: ProseSection;
+  /** The section with the newest blog posts, shown as small pictures. */
+  blog: {
+    title: string;
+    /** Text of the link to the list of all posts. */
+    allPosts: string;
+  };
   education: TimelineSection<EducationId>;
   experience: TimelineSection<ExperienceId>;
   awards: TimelineSection<AwardId>;

@@ -70,6 +70,11 @@ export const home: HomeContent = {
     ],
   },
 
+  blog: {
+    title: '網誌',
+    allPosts: '全部文章',
+  },
+
   education: {
     title: '教育',
     entries: [

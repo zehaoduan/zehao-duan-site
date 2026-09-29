@@ -3,6 +3,7 @@
  * parts are exported for reuse and for tests.
  */
 
+export { BlogSection, type BlogSectionProps } from './blog-section';
 export { ContactCard, type ContactCardProps } from './contact-card';
 export { Hero, heroHeadingId, type HeroProps } from './hero';
 export { HomeBody, sectionIds, type HomeBodyProps } from './home-body';

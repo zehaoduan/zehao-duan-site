@@ -71,6 +71,11 @@ export const home: HomeContent = {
     ],
   },
 
+  blog: {
+    title: 'Blog',
+    allPosts: 'All posts',
+  },
+
   education: {
     title: 'Education',
     entries: [

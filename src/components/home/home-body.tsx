@@ -6,8 +6,9 @@
  *      (20rem, 22.5rem from 1200 px) and the reading column on the right.
  *      Below 1024 px one column: contact first, then the sections.
  *      The order in the document is the order on the screen at every width.
- *   3. Reading column: Biography, Education, Experience, Awards, Research
- *      interest, at the measure of the design (41rem).
+ *   3. Reading column: Biography, Blog (the newest posts as small pictures),
+ *      Education, Experience, Awards, Research interest, at the measure of
+ *      the design (41rem).
  *
  * The contact column is sticky only when the window is high enough to show
  * all of it below the header. The height it needs depends on the number of
@@ -16,15 +17,17 @@
  * Props
  *   locale      language of the page
  *   dictionary  the dictionary of the language
+ *   posts       the posts of the language, from getPosts(locale)
  *
  * Server Component; holds no copy.
  */
 
 import { CopyStatusProvider, PageContainer } from '@/components/site';
-import type { Dictionary, EducationId } from '@/content/types';
+import type { Dictionary, EducationId, PostSummary } from '@/content/types';
 import type { Locale } from '@/i18n/config';
 import { cn } from '@/lib/utils';
 
+import { BlogSection } from './blog-section';
 import { ContactCard } from './contact-card';
 import { Hero } from './hero';
 import { ProseSection } from './prose-section';
@@ -33,6 +36,7 @@ import { TimelineSection } from './timeline-section';
 /** ids of the section headings: targets of in-page links. */
 export const sectionIds = {
   biography: 'biography',
+  blog: 'blog',
   education: 'education',
   experience: 'experience',
   awards: 'awards',
@@ -68,9 +72,10 @@ const sectionGap = 'mt-12 sm:mt-14';
 export interface HomeBodyProps {
   locale: Locale;
   dictionary: Dictionary;
+  posts: readonly PostSummary[];
 }
 
-export function HomeBody({ locale, dictionary }: HomeBodyProps) {
+export function HomeBody({ locale, dictionary, posts }: HomeBodyProps) {
   const { home, common } = dictionary;
   const hasWeChatRow = home.contact.labels.wechat !== undefined;
 
@@ -101,6 +106,13 @@ export function HomeBody({ locale, dictionary }: HomeBodyProps) {
 
         <div data-slot="reading" className="w-full max-w-[41rem] min-w-0 lg:justify-self-end">
           <ProseSection id={sectionIds.biography} section={home.biography} />
+          <BlogSection
+            id={sectionIds.blog}
+            locale={locale}
+            section={home.blog}
+            posts={posts}
+            className={sectionGap}
+          />
           <TimelineSection
             id={sectionIds.education}
             section={home.education}

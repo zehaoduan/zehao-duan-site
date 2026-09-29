@@ -11,8 +11,10 @@ under `prefers-reduced-motion`).
 **Wording:** the owner changed a few words on 2026-09-28, listed in
 [content-decisions.md](content-decisions.md) (employer name in the English biography,
 一等荣誉 / 一等榮譽, and 電郵, 澳洲, 南澳洲, 新南威爾斯 on the Traditional Chinese pages),
-and the last-updated date is 2026-09-28. The same changes were made in the old static
-pages, so both agree. Never change this wording back.
+and the last-updated date was 2026-09-28. The same changes were made in the old static
+pages, so both agree in wording. Never change this wording back. The last-updated date of
+the app moved to 2026-09-29 with the blog section of the home page; the old static pages
+keep 2026-09-28.
 
 ## Tokens
 
@@ -121,14 +123,19 @@ high. `scroll-padding-top` on `html`: 5rem from 768 px, 7.75rem below.
    about 2 s after a copy; without JavaScript they are plain text. Nothing is ever truncated (override the `line-clamp` defaults of the
    shadcn Item); the soft break points in long addresses are kept. Touch targets on phones
    are at least 44 px high. Outbound profile links keep `rel="me"`.
-4. Reading column: Biography, Education, Experience, Awards, Research interest, in this
-   order (as on the old site). Each section starts with a hairline whose first 32 px are
+4. Reading column: Biography, Blog, Education, Experience, Awards, Research interest, in
+   this order (as on the old site, with Blog added; owner's decision, 2026-09-29). Each section starts with a hairline whose first 32 px are
    2 px high in the accent colour, then the heading.
 5. Timelines: date column (muted, regular weight, never wrapping on Chinese pages), a marker
    gutter with a hollow ring per entry and a filled dot for the ongoing entry
    (Sep 2026 – present), then title, first detail line in the foreground colour, further
    lines muted. On phones the date stacks above the title.
-6. Footer: name, last-updated date.
+6. Blog section: the newest posts as square pictures, one per post (its cover), newest
+   first, at most twelve; four in a row below 640 px, six from there. Each picture links to
+   its post and carries the title of the post as alt text and tooltip. A link to all posts
+   stands at the right end of the heading. The section is left out when no post has a
+   picture, and in print.
+7. Footer: name, last-updated date.
 
 ### Public keys page
 

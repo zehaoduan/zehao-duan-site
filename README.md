@@ -23,11 +23,13 @@ The old static site lives in `~/Documents/Website/personal-website`. It stays th
 | `/blog/`, `/zh-hant/blog/`, `/zh-hans/blog/` | The list of blog posts |
 | `/blog/<slug>/` and the same below `/zh-hant`, `/zh-hans` | A blog post |
 | `/blog/feed.xml` and the same below `/zh-hant`, `/zh-hans` | RSS feed of the blog, one per language |
-| `/media/blog/<slug>/*.webp` | The pictures of the posts, and their square previews for the list of posts |
+| `/media/blog/<slug>/*.webp` | The pictures of the posts, and their square previews for the list of posts and the home page |
 | `/media/photo/*` | The portrait: AVIF and WebP in three widths, one JPEG |
 | `/public-key/pgp.asc`, `/public-key/ssh.pub` | The raw key files, `text/plain` |
 | `/sitemap.xml`, `/robots.txt` | For search engines |
 | anything else | Trilingual not-found page, status 404 |
+
+Each home page shows the newest blog posts as small square pictures, in the section Blog after the biography.
 
 Page URLs end with a slash; the form without it redirects (308). `/en/` is not part of the scheme and answers 404.
 
@@ -39,7 +41,7 @@ The full description is in [docs/architecture.md](docs/architecture.md); the des
 2. **Route tree.** `src/app/[lang]/page.tsx` is the home page, `src/app/[lang]/public-key/page.tsx` the public-key page, and `src/app/[lang]/blog/` the blog (list, post, feed), for all three languages. The key files, the sitemap and robots.txt are small route files under `src/app/`. `src/app/global-not-found.tsx` is the 404 page.
 3. **Per-request rendering.** No page is prerendered or cached. That is what allows a strict Content-Security-Policy with a new nonce on every response.
 4. **Content modules.** All text is in `src/content/`: one folder per language under `locales/`, facts that are the same in every language in `site.ts` and `keys/facts.ts`. Components receive their text as properties and contain no wording.
-5. **Components.** `src/components/ui/` holds the shadcn/ui components, `site/` the frame shared by all pages (header, footer, language links, theme switch), `home/`, `keys/` and `blog/` the parts of the pages, `icons/` the brand marks, `content/` the helpers for text inside the dictionaries.
+5. **Components.** `src/components/ui/` holds the shadcn/ui components, `site/` the frame shared by all pages (header, footer, language links, theme switch), `home/`, `keys/` and `blog/` the parts of the pages (the blog section of the home page is `home/blog-section.tsx`), `icons/` the brand marks, `content/` the helpers for text inside the dictionaries.
 6. **Design tokens.** Colours, fonts, radii and shadows are CSS variables in `src/app/globals.css`, light and dark.
 
 ## Folder map
@@ -77,7 +79,7 @@ src/
     keys/                 pgp.asc, ssh.pub, facts.ts
     blog/<slug>/          a blog post: post.json, en.md, zh-hant.md, zh-hans.md, pictures
     photo/                photo.jpeg, the original of the portrait
-    blog.ts               getPosts and getPost, which the pages of the blog call
+    blog.ts               getPosts and getPost, which the pages of the blog and the home page call
   fonts/                  the two font files and their licences
   i18n/                   languages, URL paths, date format
   lib/                    metadata (head tags), JSON-LD
@@ -124,7 +126,7 @@ Text exists three times, once per language. Change all three so the languages st
 
 | What | Where |
 | --- | --- |
-| Home page: biography, education, experience, awards, labels | `src/content/locales/<language>/home.tsx` |
+| Home page: biography, education, experience, awards, labels, heading of the blog section | `src/content/locales/<language>/home.tsx` |
 | Public-key page: explanations, steps, trust notes | `src/content/locales/<language>/keys.tsx` |
 | Header, footer, theme labels, skip link | `src/content/locales/<language>/common.tsx` |
 | Blog: heading, labels, link texts (not the posts) | `src/content/locales/<language>/blog.tsx` |
@@ -158,7 +160,7 @@ A post is a folder in `src/content/blog/`. The folder `writing-a-post` is an exa
    | `date` | Date of publication. Posts are listed newest first, and the links "Previous post" and "Next post" at the end of a post follow the same order. |
    | `updated` | Optional. Date of the last change, shown beside the date. |
    | `draft` | `true`: the post is seen under `npm run dev` only. |
-   | `cover` | Optional. File name of the picture at the top of the post, also used when the post is shared, and the first preview in the list of posts. |
+   | `cover` | Optional. File name of the picture at the top of the post, also used when the post is shared, the first preview in the list of posts, and the picture of the post on the home page. |
 
 3. Write the text in `en.md`, `zh-hant.md` and `zh-hans.md`. Each file starts with the front matter, then the text in Markdown:
 
@@ -192,12 +194,13 @@ Rules the build checks, and stops at with a message:
 What the site adds to a post by itself:
 
 - in the list of posts, a row of square previews of its pictures under the description: at most six, four on a phone;
+- on the home page, in the section Blog after the biography, one square picture that links to the post: the cover, or the first picture of the text if the post has no cover. The section shows the twelve newest posts, newest first; a post without any picture is not shown there. The title of the post is the alt text of the picture and its tooltip;
 - below the cover, the text of `coverAlt` as its caption, in the look of the captions in the text;
 - at the end of the post, links to the post published before it and the one published after it. Under `npm run dev` these lead to drafts as well; the live site has no drafts.
 
 Links to pages of this site are written with the path of the language of the file: `/public-key/` in `en.md`, `/zh-hans/public-key/` in `zh-hans.md`.
 
-Publishing a post does not change the last-updated date of the site; that date is set by hand (next section).
+A published post appears on the home page by itself. Publishing a post does not change the last-updated date of the site; that date is set by hand (next section).
 
 To see drafts on the local Workers runtime, which applies the strict Content-Security-Policy:
 
@@ -233,7 +236,7 @@ One place only:
 
 ```ts
 // src/content/site.ts
-lastUpdated: '2026-09-28',
+lastUpdated: '2026-09-29',
 ```
 
 The hero, the footer, `dateModified` in the JSON-LD and `<lastmod>` in the sitemap all read it. There is no cache-buster to change: the build gives every stylesheet and script a new name when its content changes.
@@ -344,7 +347,7 @@ BASE=http://localhost:8787 python3 scripts/checks/parity.py
 
 `runtime.py` checks status codes, `html lang`, redirects, the not-found page, the key files byte for byte, the security headers, that every response has a new nonce, that the HTML has no `style` attribute and no script without the nonce, and the cache headers of static files.
 
-Since the portrait was changed on 2026-09-29, `parity.py` reports the address and the size of the portrait in the head tags and in the JSON-LD of the three home pages as differences from the old site (27 lines). These are expected; any other line is a fault.
+Since the portrait was changed on 2026-09-29, `parity.py` reports the address and the size of the portrait in the head tags and in the JSON-LD of the three home pages as differences from the old site (27 lines). Since the last-updated date was set to 2026-09-29, while the old static pages keep 2026-09-28, it also reports the date on the three home pages and the three public-key pages (18 lines) and the JSON-LD of the three public-key pages (3 lines). The total is 48 lines. These are expected; any other line is a fault. The heading and the link of the blog section of the home page ("Blog", "All posts" and their Chinese forms) stand in the list "only in NEW" of the three home pages; that list is for information and is not counted as a fault.
 
 `parity.py` compares each rendered page with the old static page in `~/Documents/Website/personal-website` (set `OLD_SITE` to use another folder): every piece of text of the old page must be on the new page, the key text must equal the key files, the `email_off` comments must be in place, head tags and JSON-LD must be equal, and the content rules (no +86 number, no key data on home pages, WeChat on the Simplified Chinese home page only) must hold. `python3 scripts/checks/parity.py --negative-control` damages the fetched pages on purpose and proves that the script can fail. Once the old site is retired and the text moves on, this comparison loses its reference; the content rules and the key checks in it remain useful.
 
@@ -405,7 +408,7 @@ Going back: delete the Custom Domain and create the old DNS record again.
    ```
 
    The second number of every line must be 0 and the first must not be 0. The same goes for other features that inject scripts (Rocket Loader, Web Analytics with automatic setup): leave them off, or the browser console will report violations.
-3. **Dates.** The date is formatted by the runtime (`Intl.DateTimeFormat`). The pages must read "28 September 2026" in English and "2026年9月28日" on both Chinese pages. The local preview does; confirm it on the deployed site.
+3. **Dates.** The date is formatted by the runtime (`Intl.DateTimeFormat`). The pages must read "29 September 2026" in English and "2026年9月29日" on both Chinese pages. The local preview does; confirm it on the deployed site.
 4. **Key files.** Both must come back unchanged:
 
    ```bash

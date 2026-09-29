@@ -141,6 +141,7 @@ src/content/blog.ts           getPosts(locale), getPost(locale, slug)
 - The rendered HTML holds no `style` attribute and no script: HTML inside the Markdown is dropped, and the generator stops if a `style` attribute would appear. The look of the text is in `globals.css` under `[data-slot="post-body"]`.
 - Drafts (`"draft": true`) are generated only with `--drafts` or `BLOG_DRAFTS=1`. `npm run dev` sets the flag; `build`, `preview` and `deploy` do not. A draft that is shown carries `noindex`, and is in neither the sitemap nor the feed.
 - The list of posts shows under each post a row of square previews of its pictures, the cover first (`previews` of a post, written by the generator).
+- The home page shows the newest posts as square pictures, the first of `previews` of each post (`BlogSection`); it reads them with `getPosts` like the list.
 - A post ends with links to the posts before and after it by date (`PostNav`); `getPost` reads them from the list of the language.
 - The pages call `getPosts` and `getPost` only. If the posts move into a database, `src/content/blog.ts` is the one module to change.
 
@@ -165,7 +166,8 @@ src/components/
   site/      shared by all pages: SiteFrame, SiteHeader, SiteFooter, LanguageSwitch,
              ThemeSwitch, SkipLink, Band, PageContainer, SectionHeading,
              LastUpdated, EmailOff, JsonLd, PageData, CopyStatus, surface
-  home/      HomeBody, Hero, ContactCard, TimelineSection, ProseSection, keepDates
+  home/      HomeBody, Hero, ContactCard, BlogSection, TimelineSection, ProseSection,
+             keepDates
   home/      ... and CopyRow (the rows of the contact block that copy their value)
   keys/      KeysPage, PageHead, KeySection, KeyCard, Fingerprint, KeyText,
              UsageSteps, Command, TrustNotes, BackLink, CopyButton

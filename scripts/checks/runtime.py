@@ -55,7 +55,7 @@ for f in ['pgp.asc','ssh.pub']:
 for p,l in {'/blog/feed.xml':'en','/zh-hant/blog/feed.xml':'zh-Hant','/zh-hans/blog/feed.xml':'zh-Hans'}.items():
     s,h,b=curl(p); ok('feed '+p,s==200 and h.get('content-type','').startswith('application/rss+xml') and b.startswith(b'<?xml') and f'<language>{l}</language>'.encode() in b,f'{s} ct={h.get("content-type")} items={b.count(b"<item>")} cache={h.get("cache-control")}')
 # nine pages with the date of the site; every published blog post adds three entries with its own date
-s,h,b=curl('/sitemap.xml'); ok('sitemap',s==200 and b.count(b'<url>')>=9 and b.count(b'<url>')%3==0 and b.count(b'<lastmod>2026-09-28')>=9,f'{s} ct={h.get("content-type")} urls={b.count(b"<url>")} lastmod2026-09-28={b.count(b"<lastmod>2026-09-28")}')
+s,h,b=curl('/sitemap.xml'); ok('sitemap',s==200 and b.count(b'<url>')>=9 and b.count(b'<url>')%3==0 and b.count(b'<lastmod>2026-09-29')>=9,f'{s} ct={h.get("content-type")} urls={b.count(b"<url>")} lastmod2026-09-29={b.count(b"<lastmod>2026-09-29")}')
 s,h,b=curl('/robots.txt'); old=open(OLD+'/robots.txt','rb').read() if HAS_OLD else b'Sitemap: https://zehao-duan.com/sitemap.xml\n'; ok('robots',s==200 and b.strip()==old.strip(),f'{s} ct={h.get("content-type")} {b!r} identical={b==old}')
 # headers and nonce
 need=['content-security-policy','x-content-type-options','referrer-policy','x-frame-options','permissions-policy','strict-transport-security','cross-origin-opener-policy']

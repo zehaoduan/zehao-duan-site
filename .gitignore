@@ -27,6 +27,8 @@
 # private keys must never be committed; the public keys in src/content/keys/ are not matched
 *.key
 *.p12
+*.gpg
+*.rev
 id_rsa*
 id_ed25519*
 !*.pub
@@ -47,6 +49,7 @@ __pycache__/
 
 # Claude Code: settings of this machine only (.claude/launch.json is shared)
 .claude/settings.local.json
+.claude/worktrees/
 
 # debug
 npm-debug.log*

@@ -64,7 +64,7 @@ const person: Person = {
 
 export const site: Site = {
   origin,
-  lastUpdated: '2026-09-28',
+  lastUpdated: '2026-09-29',
   photo,
   person,
   contactOrder: [
