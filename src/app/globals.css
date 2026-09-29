@@ -1,0 +1,732 @@
+/*
+ * Global stylesheet. The binding specification is docs/design.md.
+ *
+ *  1. Imports and the dark variant
+ *  2. Theme mapping for Tailwind (@theme inline)
+ *  3. Design tokens: light, dark (class), dark (system setting)
+ *  4. Font stacks per language
+ *  5. Base: document, typography for Latin and Chinese, links
+ *  6. Shared building blocks (@utility): page-container, accent-tab, prose-measure,
+ *     text-link, no-break, scroll-shadow-x
+ *  7. Hooks of the inline content helpers (data-slot), the text of a blog post
+ *  8. Focus, motion, print (unlayered, so that they win over utilities)
+ */
+
+/* 1. ------------------------------------------------------------------ */
+
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/*
+ * dark: matches in two cases, as the tokens below do:
+ *  - the theme switch chose dark (class "dark" on <html>);
+ *  - the system asks for dark and the theme switch did not choose light
+ *    (no class "light" on <html>): before hydration and without JavaScript.
+ * Both selectors add the specificity of one class, like the shadcn default.
+ * Do not put dark: utilities on <html> itself.
+ */
+@custom-variant dark {
+  &:is(.dark *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:not(.light *) {
+      @slot;
+    }
+  }
+}
+
+/* lang-zh: applies on Chinese pages and inside Chinese parts of a page. */
+@custom-variant lang-zh (&:lang(zh));
+
+/*
+ * touch: phones (below 640 px) and every screen that is used with a finger.
+ * For touch targets of at least 44 px.
+ */
+@custom-variant touch {
+  @media (width < 40rem) {
+    @slot;
+  }
+  @media (pointer: coarse) {
+    @slot;
+  }
+}
+
+/* 2. ------------------------------------------------------------------ */
+
+@theme inline {
+  --font-sans: var(--site-font-sans);
+  --font-heading: var(--site-font-sans);
+  --font-mono: var(--site-font-mono);
+
+  --breakpoint-sm: 40rem; /* 640 */
+  --breakpoint-md: 48rem; /* 768 */
+  --breakpoint-lg: 64rem; /* 1024 */
+  --breakpoint-xl: 75rem; /* 1200 */
+
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  /* the ORCID mark keeps its official green in both themes */
+  --color-orcid: #a6ce39;
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  --shadow-xs: var(--site-shadow-xs);
+  --shadow-sm: var(--site-shadow-sm);
+}
+
+/* 3. ------------------------------------------------------------------ */
+
+:root {
+  color-scheme: light dark;
+
+  --background: oklch(0.985 0.002 255);
+  --foreground: oklch(0.21 0.012 260);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.012 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.012 260);
+  --primary: oklch(0.46 0.13 258);
+  --primary-foreground: oklch(0.985 0.002 255);
+  --secondary: oklch(0.955 0.004 255);
+  --secondary-foreground: oklch(0.27 0.012 260);
+  --muted: oklch(0.962 0.003 255);
+  --muted-foreground: oklch(0.48 0.014 260);
+  --accent: oklch(0.95 0.015 258);
+  --accent-foreground: oklch(0.3 0.06 258);
+  --destructive: oklch(0.55 0.2 27);
+  --border: oklch(0.915 0.004 255);
+  --input: oklch(0.87 0.006 255);
+  --ring: oklch(0.6 0.13 258);
+  --radius: 0.5rem;
+
+  --site-shadow-xs: 0 1px 2px 0 oklch(0.21 0.012 260 / 0.05);
+  --site-shadow-sm:
+    0 1px 3px 0 oklch(0.21 0.012 260 / 0.08),
+    0 1px 2px -1px oklch(0.21 0.012 260 / 0.08);
+}
+
+:root.light {
+  color-scheme: light;
+}
+
+/* Dark, chosen with the theme switch. Keep the two dark blocks identical. */
+:root.dark {
+  color-scheme: dark;
+
+  --background: oklch(0.165 0.006 260);
+  --foreground: oklch(0.95 0.004 255);
+  --card: oklch(0.2 0.007 260);
+  --card-foreground: oklch(0.95 0.004 255);
+  --popover: oklch(0.22 0.008 260);
+  --popover-foreground: oklch(0.95 0.004 255);
+  --primary: oklch(0.78 0.1 255);
+  --primary-foreground: oklch(0.18 0.02 260);
+  --secondary: oklch(0.26 0.008 260);
+  --secondary-foreground: oklch(0.95 0.004 255);
+  --muted: oklch(0.235 0.007 260);
+  --muted-foreground: oklch(0.72 0.012 258);
+  --accent: oklch(0.28 0.025 258);
+  --accent-foreground: oklch(0.93 0.02 255);
+  --destructive: oklch(0.7 0.18 22);
+  --border: oklch(0.3 0.008 260);
+  --input: oklch(0.35 0.01 260);
+  --ring: oklch(0.65 0.12 258);
+
+  --site-shadow-xs: 0 0 #0000;
+  --site-shadow-sm: 0 0 #0000;
+}
+
+/* Dark, from the system setting: before hydration and without JavaScript. */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    color-scheme: dark;
+
+    --background: oklch(0.165 0.006 260);
+    --foreground: oklch(0.95 0.004 255);
+    --card: oklch(0.2 0.007 260);
+    --card-foreground: oklch(0.95 0.004 255);
+    --popover: oklch(0.22 0.008 260);
+    --popover-foreground: oklch(0.95 0.004 255);
+    --primary: oklch(0.78 0.1 255);
+    --primary-foreground: oklch(0.18 0.02 260);
+    --secondary: oklch(0.26 0.008 260);
+    --secondary-foreground: oklch(0.95 0.004 255);
+    --muted: oklch(0.235 0.007 260);
+    --muted-foreground: oklch(0.72 0.012 258);
+    --accent: oklch(0.28 0.025 258);
+    --accent-foreground: oklch(0.93 0.02 255);
+    --destructive: oklch(0.7 0.18 22);
+    --border: oklch(0.3 0.008 260);
+    --input: oklch(0.35 0.01 260);
+    --ring: oklch(0.65 0.12 258);
+
+    --site-shadow-xs: 0 0 #0000;
+    --site-shadow-sm: 0 0 #0000;
+  }
+}
+
+/* 4. ------------------------------------------------------------------ */
+
+/*
+ * --font-inter, --font-inter-zh and --font-geist-mono come from next/font
+ * (src/app/fonts.ts). The stacks are set per language with :lang(), which
+ * also matches every element inside a part of the page that carries its own
+ * lang attribute (the alternate name in the hero, the 404 page).
+ *
+ * On Chinese pages no Latin system font stands before the Chinese fonts.
+ */
+:root,
+:lang(en) {
+  --site-font-sans:
+    var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    "Helvetica Neue", Arial, "PingFang HK", "PingFang SC", "Microsoft JhengHei",
+    "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  --site-font-mono:
+    var(--font-geist-mono), ui-monospace, "SF Mono", SFMono-Regular, Menlo,
+    Consolas, "Liberation Mono", monospace;
+
+  /* typographic switches that differ between Latin and Chinese text */
+  --site-leading: 1.7;
+  --site-tracking-tight: -0.022em; /* section headings */
+  --site-tracking-display: -0.032em; /* name, page title */
+  --site-weight-display: 650;
+  --site-weight-heading: 620;
+  --site-weight-title: 580; /* timeline titles */
+  --site-weight-label: 500;
+}
+
+:lang(zh-Hans) {
+  --site-font-sans:
+    var(--font-inter-zh), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    "Noto Sans CJK SC", "Noto Sans SC", sans-serif;
+}
+
+:lang(zh-Hant) {
+  --site-font-sans:
+    var(--font-inter-zh), "PingFang HK", "PingFang TC", "Microsoft JhengHei",
+    "Noto Sans CJK HK", "Noto Sans HK", "Noto Sans CJK TC", sans-serif;
+}
+
+/* Weights 500, 580, 620 and 650 do not exist in YaHei or JhengHei. */
+:lang(zh) {
+  --site-leading: 1.85;
+  --site-tracking-tight: 0.04em;
+  --site-tracking-display: 0.04em;
+  --site-weight-display: 600;
+  --site-weight-heading: 600;
+  --site-weight-title: 600;
+  --site-weight-label: 400;
+}
+
+/* 5. ------------------------------------------------------------------ */
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: var(--site-font-sans);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* the header is 3.5rem high; below 768 px it has a second row of 2.75rem */
+    scroll-padding-top: 7.75rem;
+
+    @media (min-width: 48rem) {
+      scroll-padding-top: 5rem;
+    }
+  }
+
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background: var(--background);
+    color: var(--foreground);
+    font-size: 1rem;
+    line-height: var(--site-leading);
+    font-optical-sizing: auto;
+    font-feature-settings: "calt", "ss03";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /*
+   * An element with its own lang attribute takes the font stack and the
+   * line height of its language. Utilities (font-mono, leading-*) still win,
+   * because they live in a later layer.
+   */
+  [lang] {
+    font-family: var(--site-font-sans);
+  }
+
+  /* Latin labels on Chinese pages keep Latin letter-spacing. */
+  :lang(zh) [lang="en"] {
+    letter-spacing: normal;
+  }
+
+  /* Chinese text: left-aligned, never justified. */
+  :lang(zh) :where(p, li, dd) {
+    text-align: start;
+    text-wrap: pretty;
+  }
+
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--site-font-mono);
+    font-variant-ligatures: none;
+    font-feature-settings: normal;
+  }
+
+  address {
+    font-style: normal;
+  }
+
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 22%, transparent);
+  }
+}
+
+/* 6. ------------------------------------------------------------------ */
+
+/* At most 72rem wide; gutters 16 px, 24 px from 640, 32 px from 1024. */
+@utility page-container {
+  width: min(100% - 2rem, 72rem);
+  margin-inline: auto;
+
+  @media (min-width: 40rem) {
+    width: min(100% - 3rem, 72rem);
+  }
+
+  @media (min-width: 64rem) {
+    width: min(100% - 4rem, 72rem);
+  }
+}
+
+/*
+ * The section rule: a hairline whose first 32 px are 2 px high in the accent
+ * colour. Put it on the element that starts a section (SectionHeading does).
+ */
+@utility accent-tab {
+  position: relative;
+  border-top: 1px solid var(--border);
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 2rem;
+    height: 2px;
+    background: var(--primary);
+  }
+}
+
+/* Running text: the measure of the design, the quiet link style. */
+@utility prose-measure {
+  max-width: 41rem;
+  text-wrap: pretty;
+}
+
+/* A text link in the accent colour (the ExtLink helper has it built in). */
+@utility text-link {
+  color: var(--primary);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in oklch, var(--primary) 60%, transparent);
+  text-underline-offset: 0.22em;
+  transition: text-decoration-color 120ms ease;
+
+  &:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+/* Dates and other short strings that must stay on one line. */
+@utility no-break {
+  white-space: nowrap;
+}
+
+/*
+ * The scroll hint of a block that scrolls sideways on the card colour: a
+ * shadow at each edge that has more text behind it. The shadows are
+ * backgrounds of the scrolling element, so they lie under the text and take
+ * nothing from its contrast (never a fade mask over the text). Two covers in
+ * the card colour move with the text and hide the shadow at the end that is
+ * reached.
+ */
+@utility scroll-shadow-x {
+  --scroll-shadow: color-mix(in oklch, var(--foreground) 20%, transparent);
+  background-color: var(--card);
+  background-repeat: no-repeat;
+  background-image:
+    linear-gradient(to right, var(--card) 35%, transparent),
+    linear-gradient(to left, var(--card) 35%, transparent),
+    linear-gradient(to right, var(--scroll-shadow), transparent),
+    linear-gradient(to left, var(--scroll-shadow), transparent);
+  background-position:
+    left center,
+    right center,
+    left center,
+    right center;
+  background-size:
+    2.5rem 100%,
+    2.5rem 100%,
+    1rem 100%,
+    1rem 100%;
+  background-attachment: local, local, scroll, scroll;
+
+  &:is(.dark *) {
+    --scroll-shadow: oklch(0 0 0 / 0.55);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    &:not(.light *) {
+      --scroll-shadow: oklch(0 0 0 / 0.55);
+    }
+  }
+}
+
+/* 7. ------------------------------------------------------------------ */
+
+@layer components {
+  [data-slot="ext-link"] {
+    color: var(--primary);
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: color-mix(in oklch, var(--primary) 60%, transparent);
+    text-underline-offset: 0.22em;
+    transition: text-decoration-color 120ms ease;
+  }
+
+  [data-slot="ext-link"]:hover {
+    text-decoration-color: currentColor;
+  }
+
+  /* A chip that never breaks across lines. */
+  [data-slot="inline-code"] {
+    padding: 0.1em 0.35em;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--muted);
+    font-family: var(--site-font-mono);
+    font-size: 0.8125em;
+    font-variant-ligatures: none;
+    letter-spacing: normal;
+    white-space: nowrap;
+  }
+
+  /* Latin text inside Chinese text: Latin stack (through lang="en"), Latin spacing. */
+  [data-slot="no-translate"] {
+    letter-spacing: normal;
+  }
+
+  /* A file name or an address inside a code chip keeps the chip's font. */
+  [data-slot="inline-code"] [data-slot="no-translate"],
+  [data-slot="no-translate"]:where(code *, pre *, kbd *) {
+    font-family: inherit;
+  }
+
+  /* Dates never break, in Chinese prose in particular. */
+  [data-slot="iso-date"] {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /*
+   * The text of a blog post: HTML rendered from Markdown by
+   * scripts/generate-blog.mjs. It carries no classes, so its look is set
+   * here, by element. Running text at the measure of the design.
+   */
+  [data-slot="post-body"] {
+    max-width: 41rem;
+    color: color-mix(in oklch, var(--foreground) 88%, transparent);
+    text-wrap: pretty;
+    overflow-wrap: break-word;
+
+    > * + * {
+      margin-top: 1rem;
+    }
+
+    h2,
+    h3,
+    h4 {
+      color: var(--foreground);
+      line-height: 1.3;
+      text-wrap: balance;
+    }
+
+    h2 {
+      margin-top: 2.75rem;
+      font-size: 1.375rem;
+      font-weight: var(--site-weight-heading);
+      letter-spacing: var(--site-tracking-tight);
+    }
+
+    h3 {
+      margin-top: 2rem;
+      font-size: 1.125rem;
+      font-weight: var(--site-weight-title);
+    }
+
+    h4 {
+      margin-top: 1.5rem;
+      font-size: 1rem;
+      font-weight: var(--site-weight-title);
+    }
+
+    :is(h2, h3, h4) + * {
+      margin-top: 0.75rem;
+    }
+
+    a {
+      color: var(--primary);
+      text-decoration-line: underline;
+      text-decoration-thickness: 1px;
+      text-decoration-color: color-mix(in oklch, var(--primary) 60%, transparent);
+      text-underline-offset: 0.22em;
+      transition: text-decoration-color 120ms ease;
+    }
+
+    a:hover {
+      text-decoration-color: currentColor;
+    }
+
+    strong {
+      color: var(--foreground);
+      font-weight: 600;
+    }
+
+    ul,
+    ol {
+      padding-inline-start: 1.375rem;
+    }
+
+    ul {
+      list-style: disc;
+    }
+
+    ol {
+      list-style: decimal;
+    }
+
+    li + li,
+    li > :is(ul, ol) {
+      margin-top: 0.375rem;
+    }
+
+    li::marker {
+      color: var(--muted-foreground);
+    }
+
+    blockquote {
+      padding-inline-start: 1rem;
+      border-inline-start: 2px solid var(--border);
+      color: var(--muted-foreground);
+    }
+
+    blockquote > * + * {
+      margin-top: 0.75rem;
+    }
+
+    hr {
+      margin-block: 2.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* inline code: the chip of the Code helper */
+    :not(pre) > code {
+      padding: 0.1em 0.35em;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--muted);
+      font-size: 0.8125em;
+      letter-spacing: normal;
+      overflow-wrap: anywhere;
+    }
+
+    pre {
+      padding: 0.875rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--muted);
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      letter-spacing: normal;
+      overflow-x: auto;
+    }
+
+    figure {
+      margin-block: 1.75rem;
+    }
+
+    /* A picture is never shown larger than its file. */
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: var(--radius-lg);
+      background: var(--muted);
+      box-shadow: 0 0 0 1px color-mix(in oklch, var(--foreground) 12%, transparent);
+    }
+
+    img:is(.dark *) {
+      filter: brightness(0.92);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      img:not(.light *) {
+        filter: brightness(0.92);
+      }
+    }
+
+    figcaption {
+      margin-top: 0.625rem;
+      color: var(--muted-foreground);
+      font-size: 0.8125rem;
+      line-height: 1.5;
+    }
+
+    /* A table wider than the column scrolls inside its own box. */
+    [data-slot="post-table"] {
+      margin-block: 1.5rem;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      font-variant-numeric: tabular-nums;
+    }
+
+    th,
+    td {
+      padding: 0.5rem 0.75rem 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+      text-align: start;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--foreground);
+      font-weight: var(--site-weight-label);
+      white-space: nowrap;
+    }
+
+    :is(th, td)[align="center"] {
+      text-align: center;
+    }
+
+    :is(th, td)[align="right"] {
+      text-align: end;
+    }
+
+    /* footnotes of GitHub-flavoured Markdown */
+    .footnotes {
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted-foreground);
+      font-size: 0.875rem;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+}
+
+/* 8. ------------------------------------------------------------------ */
+
+/*
+ * Focus: a solid 2 px outline in --ring with 2 px offset on everything that
+ * takes focus. Unlayered on purpose: it replaces the focus ring of the shadcn
+ * components (outline-none plus a box-shadow ring), so that every control on
+ * the site shows the same focus.
+ */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  --tw-ring-shadow: 0 0 #0000;
+}
+
+a:focus-visible,
+[tabindex]:focus-visible {
+  border-radius: var(--radius-sm);
+}
+
+/* The only motion on the site is a 120 ms colour transition. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  :root,
+  :root.dark,
+  :root:not(.light) {
+    color-scheme: light;
+    --background: #fff;
+    --foreground: #000;
+    --card: #fff;
+    --card-foreground: #000;
+    --muted: #fff;
+    --muted-foreground: #333;
+    --primary: #000;
+    --border: #bbb;
+  }
+
+  [data-slot="site-header"],
+  [data-slot="skip-link"],
+  [data-slot="theme-switch"],
+  [data-slot="button"] {
+    display: none !important;
+  }
+
+  [data-print="static"] {
+    position: static !important;
+  }
+
+  a[data-slot="ext-link"] {
+    color: inherit;
+  }
+}

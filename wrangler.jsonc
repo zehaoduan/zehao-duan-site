@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "zehao-duan-site",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  // next-themes serialises a function into an inline script; esbuild name
+  // helpers (__name) would break it in the browser.
+  "keep_names": false,
+  "observability": { "enabled": true }
+}

@@ -1,0 +1,85 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# private keys must never be committed; the public keys in src/content/keys/ are not matched
+*.key
+*.p12
+id_rsa*
+id_ed25519*
+!*.pub
+
+# backups and archives
+*.zip
+*.tar.gz
+
+# editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Python cache of scripts/checks/
+__pycache__/
+*.pyc
+
+# Claude Code: settings of this machine only (.claude/launch.json is shared)
+.claude/settings.local.json
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# separate build folders of parallel dev servers (NEXT_DIST_DIR)
+/.next-*/
+
+# OpenNext / Cloudflare
+/.open-next/
+/.wrangler/
+.dev.vars*
+!.dev.vars.example
+
+# generated from src/content/blog/ by scripts/generate-blog.mjs
+/src/content/blog-generated/
+/public/media/blog/
+
+# generated from src/content/photo/ by scripts/generate-photo.mjs
+/src/content/photo.generated.ts
+/public/media/photo/
+
+# generated from src/content/keys/*.asc|*.pub by scripts/generate-key-text.mjs
+/src/content/keys/key-text.generated.ts
